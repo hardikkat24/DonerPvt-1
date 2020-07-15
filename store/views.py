@@ -3,7 +3,7 @@ from django.http import JsonResponse
 import json
 import datetime
 from .models import *
-from .utils import cookieCart, cartData, guestOrder, sendMail
+from .utils import cookieCart, cartData, guestOrder, sendMail, sendEnquiryMail
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -37,7 +37,8 @@ def add(request, pk):
 	orderitem, orderitemcreated = OrderItem.objects.get_or_create(product = product, order = order)
 	if not orderitemcreated:
 		messages.info(request, '<p style="color: Red">Item already in cart!</p>')
-	return HttpResponseRedirect(self.request.path_info)
+
+	return redirect('search')
 
 @login_required
 def add2(request, pk):
@@ -54,6 +55,27 @@ def remove(request, pk):
 	orderitem.delete()
 
 	return redirect('cart')
+
+@login_required
+def update(request):
+
+	add, _ = ShippingAddress.objects.get_or_create(customer = request.user.customer)
+	print(add)
+
+	if request.method == "POST":
+		form = ShippingAddressForm(request.POST, instance = add)
+		if form.is_valid():
+			form.save()
+
+	else:
+		form = ShippingAddressForm(instance = add)
+
+	context = {
+		'form': form
+	}
+
+	return render(request, "store/update.html", context)
+
 
 @login_required
 def view(request, pk):
@@ -100,43 +122,33 @@ def cart(request):
 
 
 @login_required
-def checkout(request):
-	data = cartData(request)
+def place_order(request):
+	order = Order.objects.get(customer = request.user.customer, complete = False)
 
-	cartItems = data['cartItems']
-	order = data['order']
-	items = data['items']
+	if order.orderitem_set.count() > 0:
+		order.complete = True
+		order.save()
+		sendMail(request, order)
 
-	if request.method == "POST":
-		form = ShippingAddressForm(request.POST)
-		if form.is_valid():
-			ins = form.save(commit = False)
-			order1 = Order.objects.get(customer = request.user.customer, complete = False)
-
-			if order1.orderitem_set.count() > 0:
-				order1.complete = True
-				order1.save()
-				ins.order = order1
-				ins.customer = request.user.customer
-				ins.save()
-				sendMail(request, order1)
-
-				for orderitem in order.orderitem_set.all():
-					orderitem.product.stone -= orderitem.quantity
-					if orderitem.product.stone <= 0:
-						orderitem.product.ordered = True
-					orderitem.product.save()
-				return redirect('success')
-			else:
-				messages.info(request, "No items in cart!")
-			form = ShippingAddressForm()
-
-	else:
-		form = ShippingAddressForm()
+		for orderitem in order.orderitem_set.all():
+			orderitem.product.stone -= orderitem.quantity
+			if orderitem.product.stone <= 0:
+				orderitem.product.ordered = True
+			orderitem.product.save()
+		return redirect('success')
 
 
-	context = {'items':items, 'order':order, 'cartItems':cartItems, 'form': form}
-	return render(request, 'store/checkout.html', context)
+@login_required
+def enquiry(request):
+	order = Order.objects.get(customer = request.user.customer, complete = False)
+
+	if order.orderitem_set.count() > 0:
+		sendEnquiryMail(request, order)
+		
+	messages.success(request, "Please check your registered mail id for information.")
+
+	return redirect('cart')
+
 
 @login_required
 def search(request):
@@ -190,12 +202,19 @@ def register_user(request):
     if request.method == "POST":
         form = SignUpForm(request.POST)
         form1 = CustomerSignUpForm(request.POST)
+        form2 = ShippingAddressForm(request.POST)
 
         if form.is_valid() and form1.is_valid():
             user = form.save()
+
             customer = form1.save(commit = False)
             customer.user = user
             customer.save()
+
+            address = form2.save(commit = False)
+            address.customer = user.customer
+            address.save()
+
             username = form.cleaned_data.get("username")
             raw_password = form.cleaned_data.get("password1")
             user = authenticate(username=username, password=raw_password)
@@ -203,7 +222,8 @@ def register_user(request):
     else:
         form = SignUpForm()
         form1 = CustomerSignUpForm()
-    return render(request, "store/register.html", {"form": form, 'form1':form1})
+        form2 = ShippingAddressForm()
+    return render(request, "store/register.html", {"form": form, 'form1':form1, 'form2': form2})
 
 
 def about(request):
@@ -246,7 +266,7 @@ def addImageUpdate(request, pk):
 
 		if request.method == "POST":
 			print('post yes')
-			form = ProductUpdateForm(request.POST or None, instance = product)
+			form = ProductUpdateForm(request.POST or None, request.FILES, instance = product)
 			if form.is_valid():
 				form.save()
 				return redirect('add_image')
@@ -263,6 +283,15 @@ def addImageUpdate(request, pk):
 	else:
 		messages.info(request, "NOT ALLOWED!")
 		return redirect('store')
+
+
+def jewellery(request):
+	all_items = Jewellery.objects.all()
+	context = {
+		"all_items": all_items
+	}
+
+	return render(request, "store/jewellery.html", context)
 
 
 """
@@ -319,6 +348,47 @@ def updateItem(request):
 		)
 
 	return JsonResponse('Payment submitted..', safe=False)
+
+
+
+@login_required
+def checkout(request):
+	data = cartData(request)
+
+	cartItems = data['cartItems']
+	order = data['order']
+	items = data['items']
+
+	if request.method == "POST":
+		form = ShippingAddressForm(request.POST)
+		if form.is_valid():
+			ins = form.save(commit = False)
+			order1 = Order.objects.get(customer = request.user.customer, complete = False)
+
+			if order1.orderitem_set.count() > 0:
+				order1.complete = True
+				order1.save()
+				ins.order = order1
+				ins.customer = request.user.customer
+				ins.save()
+				sendMail(request, order1)
+
+				for orderitem in order.orderitem_set.all():
+					orderitem.product.stone -= orderitem.quantity
+					if orderitem.product.stone <= 0:
+						orderitem.product.ordered = True
+					orderitem.product.save()
+				return redirect('success')
+			else:
+				messages.info(request, "No items in cart!")
+			form = ShippingAddressForm()
+
+	else:
+		form = ShippingAddressForm()
+
+
+	context = {'items':items, 'order':order, 'cartItems':cartItems, 'form': form}
+	return render(request, 'store/checkout.html', context)
 
 
 <!-<tr><td style="white-space:nowrap;font-family:'trebuchet ms','helvetica',sans-serif;font-size:13px" valign="top" align="left">&lt;&lt; doner diamonds png&gt;&gt;</td></tr>-!>

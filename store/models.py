@@ -142,10 +142,10 @@ class Product(models.Model):
 	certno = models.CharField(max_length = 40, null = True, blank = True, default = "-")
 	rap = models.FloatField(null = True, blank = True)
 	price = models.FloatField(null = True, blank = True)
-	image = models.URLField(null = True, blank = True)
+	image = models.ImageField(null = True, blank = True, upload_to = "images/")
 	certificate = models.URLField(null = True, blank = True)
 	ordered = models.BooleanField(default = False)
-	video = models.URLField(null = True, blank = True, default = '')
+	video = models.URLField(null = True, blank = True, default = "")
 
 
 
@@ -161,7 +161,7 @@ class Product(models.Model):
 	@property
 	def imageURL(self):
 		try:
-			url = self.image
+			url = self.image.url
 		except:
 			url = ''
 		return url
@@ -170,6 +170,14 @@ class Product(models.Model):
 	def certificateURL(self):
 		try:
 			url = self.certificate
+		except:
+			url = ''
+		return url
+
+	@property
+	def videoURL(self):
+		try:
+			url = self.video
 		except:
 			url = ''
 		return url
@@ -235,11 +243,21 @@ class OrderItem(models.Model):
 		return total
 
 class ShippingAddress(models.Model):
-	customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
-	order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True)
-	country = models.CharField(max_length=200, null=False)
-	state = models.CharField(max_length=100,null=False)
+	customer = models.OneToOneField(Customer, on_delete=models.SET_NULL, null=True)
+	country = models.CharField(max_length=200, null=True, blank = True)
+	state = models.CharField(max_length=100,null=True, blank = True)
 	date_added = models.DateTimeField(auto_now_add=True)
 
 	def __str__(self):
-		return self.address
+		return str(self.date_added)
+
+
+class Jewellery(models.Model):
+	image = models.ImageField(null = True, blank = True, upload_to = "jewellery/")
+	desc = models.TextField(null = True, blank = True)
+
+	def __str__(self):
+		return str(self.id)
+
+	class Meta:
+		verbose_name_plural = "Jewellery"

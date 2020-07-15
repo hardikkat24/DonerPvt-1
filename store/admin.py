@@ -8,7 +8,7 @@ class ProductResource(resources.ModelResource):
 
 	class Meta:
 		model = Product
-		exclude = ('name', 'ordered', 'pseudo_shape')
+		exclude = ('name', 'ordered', 'pseudo_shape', 'image')
 		import_id_fields = ['lot_no',]
 
 
@@ -21,3 +21,4 @@ admin.site.register(Product, ProductAdmin)
 admin.site.register(Order)
 admin.site.register(OrderItem)
 admin.site.register(ShippingAddress)
+admin.site.register(Jewellery)
