@@ -14,6 +14,7 @@ from .filters import ProductFilter
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.contrib import messages
+from django.views.decorators.csrf import csrf_exempt
 
 def store(request):
 	"""
@@ -49,6 +50,17 @@ def add2(request, pk):
          messages.info(request, 'Item already in cart!')
     return redirect('store')
 
+
+@login_required
+def add_product(request, pk):
+    product = Product.objects.get(pk = pk)
+    order, created = Order.objects.get_or_create(customer = request.user.customer, complete = False)
+    orderitem, orderitemcreated = OrderItem.objects.get_or_create(product = product, order = order)
+    if not orderitemcreated:
+         messages.info(request, 'Item already in cart!')
+    return redirect('view', pk = pk)
+
+
 @login_required
 def remove(request, pk):
 	orderitem = OrderItem.objects.get(pk = pk)
@@ -80,19 +92,7 @@ def update(request):
 @login_required
 def view(request, pk):
 	product = Product.objects.filter(lot_no__exact = pk).first()
-	if request.method == "POST":
-		form = QuantityForm(request.POST)
-		if form.is_valid():
-			quantity = form.cleaned_data.get('quantity')
-			order, created = Order.objects.get_or_create(customer = request.user.customer, complete = False)
-			orderitem, orderitemcreated = OrderItem.objects.get_or_create(product = product, order = order)
-
-			orderitem.quantity = quantity
-			if orderitem.quantity > orderitem.product.stone:
-				orderitem.quantity = orderitem.product.stone
-				messages.info(request, 'Only '+ str(orderitem.product.stone) + "piece(s) left !" )
-
-			orderitem.save()
+	
 
 
 
@@ -104,7 +104,6 @@ def view(request, pk):
 	context = {
 	'product': product,
 	'cartItems':cartItems,
-	'form': form,
 	}
 	return render(request, "store/product.html", context)
 
@@ -294,102 +293,57 @@ def jewellery(request):
 	return render(request, "store/jewellery.html", context)
 
 
-"""
-def updateItem(request):
-	data = json.loads(request.body)
-	productId = data['productId']
-	action = data['action']
-	print('Action:', action)
-	print('Product:', productId)
+@csrf_exempt
+def ajax_enquiry(request):
+	data = request.POST.get("products", None)
 
-	customer = request.user.customer
-	product = Product.objects.get(id=productId)
-	order, created = Order.objects.get_or_create(customer=customer, complete=False)
-
-	orderItem, created = OrderItem.objects.get_or_create(order=order, product=product)
-
-	if action == 'add':
-		orderItem.quantity = (orderItem.quantity + 1)
-	elif action == 'remove':
-		orderItem.quantity = (orderItem.quantity - 1)
-
-	orderItem.save()
-
-	if orderItem.quantity <= 0:
-		orderItem.delete()
-
-	return JsonResponse('Item was added', safe=False)
-
-	def processOrder(request):
-	transaction_id = datetime.datetime.now().timestamp()
-	data = json.loads(request.body)
-
-	if request.user.is_authenticated:
-		customer = request.user.customer
-		order, created = Order.objects.get_or_create(customer=customer, complete=False)
-	else:
-		customer, order = guestOrder(request, data)
-
-	total = float(data['form']['total'])
-	order.transaction_id = transaction_id
-
-	if total == order.get_cart_total:
-		order.complete = True
+	print(data)
+	data = json.loads(data)
+	print(data)
+	products = Product.objects.filter(lot_no__in = data)
+	order = Order(customer = request.user.customer)
 	order.save()
 
-	if order.shipping == True:
-		ShippingAddress.objects.create(
-		customer=customer,
-		order=order,
-		address=data['shipping']['address'],
-		city=data['shipping']['city'],
-		state=data['shipping']['state'],
-		zipcode=data['shipping']['zipcode'],
-		)
+	for product in products:
+		orderitem = OrderItem(product = product, order = order)
+		orderitem.save()
 
-	return JsonResponse('Payment submitted..', safe=False)
+	if order.orderitem_set.count() > 0:
+		sendEnquiryMail(request, order)
 
+	order.delete()
+		
+	messages.success(request, "Please check your registered mail id for information.")
 
 
-@login_required
-def checkout(request):
-	data = cartData(request)
 
-	cartItems = data['cartItems']
-	order = data['order']
-	items = data['items']
-
-	if request.method == "POST":
-		form = ShippingAddressForm(request.POST)
-		if form.is_valid():
-			ins = form.save(commit = False)
-			order1 = Order.objects.get(customer = request.user.customer, complete = False)
-
-			if order1.orderitem_set.count() > 0:
-				order1.complete = True
-				order1.save()
-				ins.order = order1
-				ins.customer = request.user.customer
-				ins.save()
-				sendMail(request, order1)
-
-				for orderitem in order.orderitem_set.all():
-					orderitem.product.stone -= orderitem.quantity
-					if orderitem.product.stone <= 0:
-						orderitem.product.ordered = True
-					orderitem.product.save()
-				return redirect('success')
-			else:
-				messages.info(request, "No items in cart!")
-			form = ShippingAddressForm()
-
-	else:
-		form = ShippingAddressForm()
+	return JsonResponse(data, safe = False)
 
 
-	context = {'items':items, 'order':order, 'cartItems':cartItems, 'form': form}
-	return render(request, 'store/checkout.html', context)
+@csrf_exempt
+def ajax_cart(request):
+	data = request.POST.get("products", None)
+	messages = []
+
+	print(data)
+	data = json.loads(data)
+	print(data)
+	products = Product.objects.filter(lot_no__in = data)
+
+	order, created = Order.objects.get_or_create(customer = request.user.customer, complete = False)
+
+	for product in products:
+		orderitem, orderitemcreated = OrderItem.objects.get_or_create(product = product, order = order)
+
+		if not orderitemcreated:
+			messages.append(str(product) +' already in cart!')
 
 
-<!-<tr><td style="white-space:nowrap;font-family:'trebuchet ms','helvetica',sans-serif;font-size:13px" valign="top" align="left">&lt;&lt; doner diamonds png&gt;&gt;</td></tr>-!>
-"""
+		
+	messages.append("Successfully Added to cart!")
+
+	data = {
+		'messages': messages
+	}
+
+	return JsonResponse(data, safe = False)

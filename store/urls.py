@@ -8,7 +8,8 @@ urlpatterns = [
 	#Leave as empty string for base url
 	path('', views.store, name="store"),
 	path('add/<str:pk>', views.add, name = "add"),
-        path('add2/<str:pk>', views.add2, name = "add2"),
+    path('add2/<str:pk>', views.add2, name = "add2"),
+    path('add-product/<str:pk>', views.add_product, name = "add-product"),
 	path('remove/<str:pk>', views.remove, name = "remove"),
 	path('view/<str:pk>', views.view, name = "view"),
 	path('cart/', views.cart, name="cart"),
@@ -27,4 +28,7 @@ urlpatterns = [
 	path('addImage/', views.addImage, name='add_image'),
 	path('addImageUpdate/<str:pk>', views.addImageUpdate, name='add_image_update'),
 	path('jewellery/', views.jewellery, name = "jewellery"),
+
+	path('ajax/enquiry/', views.ajax_enquiry, name = "ajax-enquiry"),
+	path('ajax/cart/', views.ajax_cart, name = "ajax-cart"),
 ]

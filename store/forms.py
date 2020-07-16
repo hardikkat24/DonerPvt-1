@@ -81,9 +81,16 @@ class CustomerSignUpForm (forms.ModelForm):
            })
     )
 
+  mobile_no = forms.CharField(
+      widget=forms.TextInput(
+           attrs={
+               "class": "form-control"
+           })
+    )
+
   class Meta:
     model = Customer
-    fields = ('fname', 'lname', 'company_name')
+    fields = ('fname', 'lname', 'company_name', 'mobile_no')
 
 
 class ShippingAddressForm(forms.ModelForm):
@@ -102,10 +109,17 @@ class ShippingAddressForm(forms.ModelForm):
                "class": "form-control"
            })
     )
+  zip_code = forms.CharField(
+      label="Zip Code",
+      widget=forms.TextInput(
+           attrs={
+               "class": "form-control"
+           })
+    )
 
   class Meta:
     model = ShippingAddress
-    exclude =['customer', 'order']
+    exclude =['customer', ]
 
 
 class ProductUpdateForm(forms.ModelForm):
