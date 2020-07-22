@@ -39,6 +39,7 @@ footer, header, hgroup, menu, nav, section {
 
 img {
 	vertical-align: middle;
+	width: inherit;
 }
 
 ol, ul {

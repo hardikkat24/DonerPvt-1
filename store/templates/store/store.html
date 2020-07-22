@@ -35,7 +35,7 @@
 						{% if product.imageURL != "" %}
 						{% if not product.ordered %}
 						<article>
-							<img src="{{product.imageURL}}" alt="">
+							<img src="{{product.imageURL}}" alt="" style="width: inherit">
 							<h3>{{product.lot_no}}</h3>
 							<h4>${{product.price}}</h4>
 							<a class="btn btn-outline-secondary add-btn update-cart" href = "{% url 'add2' product.pk %}">Add to cart</a>
@@ -50,55 +50,14 @@
 		</div>
 	</div>
  			<section class="quick-links">
-				<article style="background-image: url({% static 'images/jewel1.jpg' %});">
-					<a href="{% url 'jewellery' %}" class="table">
-						<div class="cell">
-							<div class="text">
-								<h4>Lorem ipsum</h4>
-								<hr>
-								<h3>Dolor sit amet</h3>
-							</div>
-						</div>
-					</a>
+				<article style="background-image: url({% static 'images/jewel1.jpg' %});background-size: cover;">
+					<a href="{% url 'jewellery' %}" class="table"></a>
 				</article>
-				<article class="red" style="background-image: url({% static 'images/jewel2.jpg' %});">
-					<a href="{% url 'jewellery' %}" class="table">
-						<div class="cell">
-							<div class="text">
-								<h4>consequatur</h4>
-								<hr>
-								<h3>voluptatem</h3>
-								<hr>
-								<p>Accusantium</p>
-							</div>
-						</div>
-					</a>
+				<article class="red" style="background-image: url({% static 'images/jewel2.jpg' %});background-size: cover;">
+					<a href="{% url 'jewellery' %}" class="table"></a>
 				</article>
-				<article class="red" style="background-image: url({% static 'images/jewel3.jpg' %});">
-					<a href="{% url 'jewellery' %}" class="table">
-						<div class="cell">
-							<div class="text">
-								<h4>consequatur</h4>
-								<hr>
-								<h3>voluptatem</h3>
-								<hr>
-								<p>Accusantium</p>
-							</div>
-						</div>
-					</a>
-				</article>
-				<article class="red" style="background-image: url({% static 'images/jewel4.jpg' %});">
-					<a href="{% url 'jewellery' %}" class="table">
-						<div class="cell">
-							<div class="text">
-								<h4>consequatur</h4>
-								<hr>
-								<h3>voluptatem</h3>
-								<hr>
-								<p>Accusantium</p>
-							</div>
-						</div>
-					</a>
+				<article class="red" style="background-image: url({% static 'images/jewel3.jpg' %});background-size: cover;">
+					<a href="{% url 'jewellery' %}" class="table"></a>
 				</article>
 			</section>
 {% endblock content %}
