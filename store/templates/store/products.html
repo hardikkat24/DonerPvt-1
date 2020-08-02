@@ -3,6 +3,20 @@
 {% load static %}
 {% block content %}
 <style>
+table caption {
+	padding: .5em 0;
+}
+
+table.dataTable th,
+table.dataTable td {
+  white-space: nowrap;
+}
+
+.p {
+  text-align: center;
+  padding-top: 140px;
+  font-size: 14px;
+}
 	.image-checkbox
 	{
 		cursor: pointer;
@@ -54,7 +68,6 @@
 	}
 	.button-filter:hover{
 		background-color: skyblue;
-	}
 	.button-filter-checked{
 		background-color: skyblue;
 	}
@@ -66,6 +79,7 @@
 				<li>Product results</li>
 			</ul>
 		</div>
+	}
 		<!-- / container -->
 	</div>
 	<!-- / body -->
@@ -201,30 +215,30 @@
 			</div>
 			<br>
 			<div class="container">
-				<div class="table-responsive">
-					<table class="table table-bordered table-striped" id="dataTable" width="100%" cellspacing="0" style="font-size: 12px;">
-						<thead>
+				<div class="table-responsive" style="font-family:VarelaRound;">
+					<table class="table table-bordered table-hover dt-responsive" id="dataTable" width="100%" cellspacing="0" style="font-size:12px; text-align: center;">
+						<thead style="background-color: lightblue;">
 						<tr>
 							<th>Select</th>
+							<th>View</th>
+							<th>Add to Cart</th>
 							<th>Lot_no</th>
+							<th>Lab</th>
 							<th>Shape</th>
 							<th>Carat</th>
 							<th>Color</th>
 							<th>Clarity</th>
-							<th>Measurement</th>
-							<th>Depth</th>
-							<th>Tablebl</th>
 							<th>Cut</th>
 							<th>Polish</th>
-							<th>Sym</th>
-							<th>Fl</th>
+							<th>Symmetry</th>
+							<th>Flouroscence</th>	
+							<th>Price/Ct</th>
+							<th>Measurement</th>
+							<th>Table</th>
+							<th>Depth</th>
+							<th>Rap</th>
 							<th>Cul</th>
 							<th>Girdle</th>
-							<th>Lab</th>
-							<th>Rap</th>
-							<th>Price</th>
-							<th>View</th>
-							<th>Add to Cart</th>
 						</tr>
 						</thead>
 
@@ -233,38 +247,40 @@
 						{% if not product.ordered %}
 						<tr>
 							<td><input type="checkbox" name="product" value="{{ product.pk }}" class = "product-cbox"/></td>
-							<td><h3></h3>{{product.lot_no}}</h3></td>
-							<td>{{product.get_pseudo_shape_display }}</td>
-							<td>{{product.carat}}</td>
-							<td>{{product.color}}</td>
-							<td>{{product.clarity}}</td>
-							<td>{{product.measurement }}</td>
-							<td>{{product.dept }}</td>
-							<td>{{product.tbl }}</td>
-							<td>{{product.cut }}</td>
-							<td>{{product.pol }}</td>
-							<td>{{product.sym }}</td>
-							<td>{{product.fl }}</td>
-							<td>{{product.cul }}</td>
-							<td>{{product.girdle }}</td>
-							<td>{{product.lab }}</td>
-							<td>{{product.rap }}</td>
-							<td>{{product.price }}</td>
 							<td>
 							<a href = "{% url 'view' product.pk %}">View</a>
 							</td>
 							<td>
 							<a href = "{% url 'add' product.pk %}">Add to cart</a>
 							</td>
+							<td><h3></h3>{{product.lot_no}}</h3></td>
+							<td>{{product.lab }}</td>
+							<td>{{product.get_pseudo_shape_display }}</td>
+							<td>{{product.carat |floatformat:2 }}</td>
+							<td>{{product.color}}</td>
+							<td>{{product.clarity}}</td>
+							<td>{{product.cut }}</td>
+							<td>{{product.pol }}</td>
+							<td>{{product.sym }}</td>
+							<td>{{product.fl }}</td>
+							<td>{{product.price }}</td>
+							<td>{{product.measurement }}</td>
+							<td>{{product.tbl }}</td>
+							<td>{{product.dept }}</td>
+							<td>{{product.rap }}</td>
+							<td>{{product.cul }}</td>
+							<td>{{product.girdle }}</td>
 						</tr>
 						{% endif %}
 					{% endfor %}
 
 						</tbody>
 					</table>
-					<a id = "enquiry-btn" style="margin:5px; color: white;" class="btn-grey">Enquiry of Selected Diamonds</a>
+				<center>	<a id = "enquiry-btn" style="margin:5px; color: white;" class="btn-grey">Enquiry of Selected Diamonds</a>
 					<a id = "cart-btn" style="margin:5px; color: white;" class="btn-grey">Add Selected Items to cart</a>
-				</div>
+				</center>
+					</div>
+				
 			</div>
 	</div>
 	<!-- / body -->
