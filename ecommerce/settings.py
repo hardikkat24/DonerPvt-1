@@ -18,7 +18,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
-DEBUG = False
+DEBUG = True
 # SECURITY WARNING: keep the secret key used in production secret!
 if DEBUG is True:
     SECRET_KEY = "z+ksf@)0d^qojbh4rnp4b1to$hq&*tt(3bs$gf(3i267g$k9ln"
@@ -28,7 +28,7 @@ else:
 # SECURITY WARNING: don't run with debug turned on in production!
 
 
-ALLOWED_HOSTS = ['www.donerdiamonds.com']
+ALLOWED_HOSTS = ['www.donerdiamonds.com','donerdiamonds.com']
 
 
 # Application definition
@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     'crispy_forms',
     'import_export',
     'widget_tweaks',
@@ -136,7 +135,7 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-MEDIA_URL = '/images/'
+MEDIA_URL = '/media/'
 
 #media root changed
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
