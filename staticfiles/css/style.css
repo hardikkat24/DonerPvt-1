@@ -398,6 +398,36 @@ a:hover {
 	color: #afa6c8;
 }
 
+
+#slider .red h3 {
+	color: #bd4a4a;
+}
+
+#slider .red a {
+	border-color: #bd4a4a;
+	color: #bd4a4a;
+}
+
+#slider .cyan h2 {
+	font-family: "Novecentowide";
+	color: #678678;
+	font-size: 48px;
+	line-height: 46px;
+	letter-spacing: 9px;
+	font-weight: 300;
+}
+
+
+#slider .cyan h3 {
+	color: #0aa2dd;
+}
+
+#slider .cyan a {
+	border-color: #0aa2dd;
+	color: #0aa2dd;
+}
+
+
 #slider .yellow h3 {
 	color: #f7c769;
 }
@@ -460,7 +490,7 @@ a:hover {
 
 .products article {
 	width: 235px;
-	padding: 18px 0 0;
+	padding: 2px;
 	height: 405px;
 	border: 1px solid #d3d3d3;
 	background-color: #fff;

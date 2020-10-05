@@ -11,11 +11,11 @@
 						<h1>{{ product.lot_no }}</h1>
 						<h4>${{ product.price }}</h4>
 						<div class="entry">
-							
+
 							<div class="tabs">
 								<div class="nav">
 									<ul>
-										<li class = "active"><a href="#spec">Specification</a></li>
+										<li class = "active" style="padding-left: 10px;padding-right: 45px;"><a href="#spec">Specification</a></li>
 										<li><a href="#ret">Certificate</a></li>
 										<li><a href="#vid">Video</a></li>
 									</ul>
@@ -40,21 +40,21 @@
 									<p><b>Rap: </b>{{ product.rap }}</p>
 								</div>
 								<div class="tab-content" id="ret">
-									
+
 										<img src="{{ product.certificateURL }}" alt="">
-									
+
 								</div>
 								<div class="tab-content" id="vid">
-									
+
 										<img src="{{ product.videoURL }}" alt="">
-									
+
 								</div>
 							</div>
 						</div>
-					
+
 						<div class="actions">
 								<a type="submit" class="btn-grey" href = "{% url 'add-product' product.pk %}">Add to Cart</a>
-							
+
 						</div>
 					</div>
 				</div>
