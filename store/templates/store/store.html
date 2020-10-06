@@ -51,7 +51,10 @@
 						{% if not product.ordered %}
 						<article>
 							<img src="{{product.imageURL}}" alt="" style="width:inherit padding: 20px">
-							<h3>{{product.lot_no}}</h3>
+							<h3>Color: {{product.color}}</h3>
+							<h3>Carat: {{product.carat}}</h3>
+							<h3>Clarity: {{product.clarity}}</h3>
+							<h3>Lab: {{product.get_lab_display}}</h3>
 							<h4>${{product.price}}</h4>
 							<a class="btn btn-outline-secondary add-btn update-cart" href = "{% url 'add2' product.pk %}">Add to cart</a>
 						</article>
@@ -70,13 +73,11 @@
 				<h2>Shop Jewelry</h2>
 					<div class="row" style="padding: 6px 20px 6px 20px;">
  			<section class="quick-links">
-				<article style="background-image: url(/static/images/jewel1.jpg);background-size: cover;margin-right: 2px;margin-left: 15px;">
+				{% for piece in jewellery %}
+				<article style="background-image: url({{ piece.imageURL }});background-size: cover;margin-right: 2px;margin-left: 15px; width: 350px;">
 					<a href="{% url 'jewellery' %}"></a>
 				</article>
-				<article class="red" style="background-image: url({% static 'images/jewel2.jpg' %});background-size: cover;">
-					<a href="{% url 'jewellery' %}" ></a>
-				</article>
-
+				{% endfor %}
 			</section>
 			</div>
 			</div>

@@ -158,6 +158,9 @@ class Product(models.Model):
 	def price_ct(self):
 		return self.price / self.carat
 
+	@property
+	def price_total(self):
+		return int(self.price*self.carat)
 
 	@property
 	def imageURL(self):
@@ -240,7 +243,7 @@ class OrderItem(models.Model):
 
 	@property
 	def get_total(self):
-		total = self.product.price * self.quantity
+		total = self.product.price_total * self.quantity
 		return total
 
 class ShippingAddress(models.Model):
@@ -260,6 +263,14 @@ class Jewellery(models.Model):
 
 	def __str__(self):
 		return str(self.id)
+
+	@property
+	def imageURL(self):
+		try:
+			url = self.image.url
+		except:
+			url = ''
+		return url
 
 	class Meta:
 		verbose_name_plural = "Jewellery"

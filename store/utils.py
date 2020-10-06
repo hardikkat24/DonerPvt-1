@@ -9,7 +9,7 @@ from django.utils.html import strip_tags
 
 
 SHIPPING_CHARGES = 100
-OWNER_MAIL = "saahillalwani3@gmail.com"
+OWNER_MAIL = "hardikkatehara@gmail.com"
 
 
 def cookieCart(request):
@@ -162,6 +162,46 @@ def sendEnquiryMail(request, order):
 
 	email = EmailMessage(
 			mail_subject, message, to = [to_email, OWNER_MAIL]
+		)
+	# email.attach(plain_message, "text/html")
+	email.content_subtype = "html"
+	# email.attach_file('static/images/Transparent-small.png')
+	email.send()
+	print("Sent")
+
+
+def sendOwnerApprovalMail(request, user):
+	current_site = get_current_site(request)
+	mail_subject = "New User Registration"
+
+	message = render_to_string('store/approval_email.html',{
+			'user': user,
+			'datetime': datetime.datetime.now(pytz.timezone('Asia/Kolkata')),
+			'domain': current_site.domain,
+		})
+
+	email = EmailMessage(
+			mail_subject, message, to = [OWNER_MAIL]
+		)
+	# email.attach(plain_message, "text/html")
+	email.content_subtype = "html"
+	# email.attach_file('static/images/Transparent-small.png')
+	email.send()
+	print("Sent")
+
+
+def sendUserApprovalMail(request, user):
+	current_site = get_current_site(request)
+	mail_subject = "Registration Accepted"
+
+	message = render_to_string('store/accept_email.html',{
+			'user': user,
+			'datetime': datetime.datetime.now(pytz.timezone('Asia/Kolkata')),
+			'domain': current_site.domain,
+		})
+
+	email = EmailMessage(
+			mail_subject, message, to = [OWNER_MAIL]
 		)
 	# email.attach(plain_message, "text/html")
 	email.content_subtype = "html"

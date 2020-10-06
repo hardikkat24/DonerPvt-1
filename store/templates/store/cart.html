@@ -33,7 +33,7 @@
 								<h3><a href="{% url 'view' item.product.pk %}">{{ item.product.lot_no }}</a></h3>
 								<p>{{ item.product.description }}</p>
 							</td>
-							<td class="price">${{item.product.price}}</td>
+							<td class="price">${{item.product.price_total}}</td>
 							<td class="qnt">{{item.quantity}}</td>
 							<td class="total">${{item.get_total}}</td>
 							<td class="delete"><a href = "{% url 'remove' item.id %}" class="ico-del"></a></td>

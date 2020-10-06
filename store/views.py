@@ -1,9 +1,9 @@
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse, Http404
 import json
 import datetime
 from .models import *
-from .utils import cookieCart, cartData, guestOrder, sendMail, sendEnquiryMail
+from .utils import cookieCart, cartData, guestOrder, sendMail, sendEnquiryMail, sendOwnerApprovalMail, sendUserApprovalMail
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -15,6 +15,8 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
+import random
+from django.contrib.auth.models import User
 
 def store(request):
 	"""
@@ -27,7 +29,10 @@ def store(request):
 	items = data['items']
 
 	products = Product.objects.filter( ordered__exact = False )
-	context = {'products':products, 'cartItems':cartItems}
+	jewellery = list(Jewellery.objects.all())
+	random_jewellery = random.sample(jewellery, 3)
+	print(random_jewellery)
+	context = {'products':products, 'cartItems':cartItems, 'jewellery': random_jewellery}
 	return render(request, 'store/store.html', context)
 
 
@@ -204,7 +209,10 @@ def register_user(request):
         form2 = ShippingAddressForm(request.POST)
 
         if form.is_valid() and form1.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            user.is_active = False
+            user.save()
+            sendOwnerApprovalMail(request, user)
 
             customer = form1.save(commit = False)
             customer.user = user
@@ -347,3 +355,25 @@ def ajax_cart(request):
 	}
 
 	return JsonResponse(data, safe = False)
+
+
+def activate_user(request, pk):
+	if request.user.is_superuser:
+		try:
+			user = User.objects.get(pk=pk)
+		except:
+			return HttpResponse('Invalid Request')
+		if request.method == 'POST':
+			user.is_active = True
+			user.save()
+			sendUserApprovalMail(request, user)
+			messages.success(request, "Activated successfully")
+
+		context = {
+			'user': user
+		}
+
+		return render(request, 'store/activate_user.html', context)
+
+	else:
+		raise Http404('Invalid Request')
