@@ -379,7 +379,10 @@ table.dataTable td {
 								type: "POST",
 								url : myurl,
 								data : {"products": JSON.stringify(arr)},
-								dataType: 'json'
+								dataType: 'json',
+								success: function (data){
+									alert('Please check your mail for enquiry')
+								}
 							})
 							
 						})

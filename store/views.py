@@ -19,32 +19,32 @@ import random
 from django.contrib.auth.models import User
 
 def store(request):
-	"""
+    """
 
-	"""
-	data = cartData(request)
+    """
+    data = cartData(request)
 
-	cartItems = data['cartItems']
-	order = data['order']
-	items = data['items']
+    cartItems = data['cartItems']
+    order = data['order']
+    items = data['items']
 
-	products = Product.objects.filter( ordered__exact = False )
-	jewellery = list(Jewellery.objects.all())
-	random_jewellery = random.sample(jewellery, 3)
-	print(random_jewellery)
-	context = {'products':products, 'cartItems':cartItems, 'jewellery': random_jewellery}
-	return render(request, 'store/store.html', context)
+    products = Product.objects.filter( ordered__exact = False )
+    jewellery = list(Jewellery.objects.all())
+    random_jewellery = random.sample(jewellery, 3)
+    print(random_jewellery)
+    context = {'products':products, 'cartItems':cartItems, 'jewellery': random_jewellery}
+    return render(request, 'store/store.html', context)
 
 
 @login_required
 def add(request, pk):
-	product = Product.objects.get(pk = pk)
-	order, created = Order.objects.get_or_create(customer = request.user.customer, complete = False)
-	orderitem, orderitemcreated = OrderItem.objects.get_or_create(product = product, order = order)
-	if not orderitemcreated:
-		messages.info(request, '<p style="color: Red">Item already in cart!</p>')
+    product = Product.objects.get(pk = pk)
+    order, created = Order.objects.get_or_create(customer = request.user.customer, complete = False)
+    orderitem, orderitemcreated = OrderItem.objects.get_or_create(product = product, order = order)
+    if not orderitemcreated:
+        messages.info(request, '<p style="color: Red">Item already in cart!</p>')
 
-	return redirect('search')
+    return redirect('search')
 
 @login_required
 def add2(request, pk):
@@ -68,137 +68,144 @@ def add_product(request, pk):
 
 @login_required
 def remove(request, pk):
-	orderitem = OrderItem.objects.get(pk = pk)
-	orderitem.delete()
+    orderitem = OrderItem.objects.get(pk = pk)
+    orderitem.delete()
 
-	return redirect('cart')
+    return redirect('cart')
 
 @login_required
 def update(request):
 
-	add, _ = ShippingAddress.objects.get_or_create(customer = request.user.customer)
-	print(add)
+    add, _ = ShippingAddress.objects.get_or_create(customer = request.user.customer)
+    print(add)
 
-	if request.method == "POST":
-		form = ShippingAddressForm(request.POST, instance = add)
-		if form.is_valid():
-			form.save()
+    if request.method == "POST":
+        form = ShippingAddressForm(request.POST, instance = add)
+        if form.is_valid():
+            form.save()
 
-	else:
-		form = ShippingAddressForm(instance = add)
+    else:
+        form = ShippingAddressForm(instance = add)
 
-	context = {
-		'form': form
-	}
+    context = {
+        'form': form
+    }
 
-	return render(request, "store/update.html", context)
+    return render(request, "store/update.html", context)
 
 
 @login_required
 def view(request, pk):
-	product = Product.objects.filter(lot_no__exact = pk).first()
-	
+    product = Product.objects.filter(lot_no__exact = pk).first()
 
 
 
-	data = cartData(request)
 
-	cartItems = data['cartItems']
-	form = QuantityForm()
+    data = cartData(request)
 
-	context = {
-	'product': product,
-	'cartItems':cartItems,
-	}
-	return render(request, "store/product.html", context)
+    cartItems = data['cartItems']
+    form = QuantityForm()
+
+    context = {
+    'product': product,
+    'cartItems':cartItems,
+    }
+    return render(request, "store/product.html", context)
 
 
 @login_required
 def cart(request):
-	data = cartData(request)
+    data = cartData(request)
 
-	cartItems = data['cartItems']
-	order = data['order']
-	items = data['items']
+    cartItems = data['cartItems']
+    order = data['order']
+    items = data['items']
 
-	context = {'items':items, 'order':order, 'cartItems':cartItems}
-	return render(request, 'store/cart.html', context)
+    context = {'items':items, 'order':order, 'cartItems':cartItems}
+    return render(request, 'store/cart.html', context)
 
 
 @login_required
 def place_order(request):
-	order = Order.objects.get(customer = request.user.customer, complete = False)
+    order = Order.objects.get(customer = request.user.customer, complete = False)
 
-	if order.orderitem_set.count() > 0:
-		order.complete = True
-		order.save()
-		sendMail(request, order)
+    if order.orderitem_set.count() > 0:
+        order.complete = True
+        order.save()
+        sendMail(request, order)
 
-		for orderitem in order.orderitem_set.all():
-			orderitem.product.stone -= orderitem.quantity
-			if orderitem.product.stone <= 0:
-				orderitem.product.ordered = True
-			orderitem.product.save()
-		return redirect('success')
+        for orderitem in order.orderitem_set.all():
+            orderitem.product.stone -= orderitem.quantity
+            if orderitem.product.stone <= 0:
+                orderitem.product.ordered = True
+            orderitem.product.save()
+        return redirect('success')
 
 
 @login_required
 def enquiry(request):
-	order = Order.objects.get(customer = request.user.customer, complete = False)
+    order = Order.objects.get(customer = request.user.customer, complete = False)
 
-	if order.orderitem_set.count() > 0:
-		sendEnquiryMail(request, order)
-		
-	messages.success(request, "Please check your registered mail id for information.")
+    if order.orderitem_set.count() > 0:
+        sendEnquiryMail(request, order)
 
-	return redirect('cart')
+    messages.success(request, "Please check your registered mail id for information.")
+
+    return redirect('cart')
 
 
 @login_required
 def search(request):
-	data = cartData(request)
+    data = cartData(request)
 
-	cartItems = data['cartItems']
-	order = data['order']
-	items = data['items']
+    cartItems = data['cartItems']
+    order = data['order']
+    items = data['items']
 
-	product_list = Product.objects.filter(ordered__exact = False)
-	product_filter = ProductFilter(request.GET, queryset = product_list)
-	product_list = product_filter.qs
+    product_list = Product.objects.filter(ordered__exact = False)
+    product_filter = ProductFilter(request.GET, queryset = product_list)
+    product_list = product_filter.qs
 
-	# for p in product_list:
-	# 	print(p)
-	# page = request.GET.get("page", 1)
-	# paginator = Paginator(product_list, 50)
+    # for p in product_list:
+    # 	print(p)
+    # page = request.GET.get("page", 1)
+    # paginator = Paginator(product_list, 50)
 
-	# try:
-	# 	products_p = paginator.page(page)
-	# except PageNotAnInteger:
-	# 	products_p = paginator.page(1)
-	# except EmptyPage:
-	# 	products_p = paginator.page(paginator.num_pages)
-	# print(products_p)
-	context = {'products':product_list, 'cartItems':cartItems, 'filter': product_filter}
-	return render(request, 'store/products.html',context)
+    # try:
+    # 	products_p = paginator.page(page)
+    # except PageNotAnInteger:
+    # 	products_p = paginator.page(1)
+    # except EmptyPage:
+    # 	products_p = paginator.page(paginator.num_pages)
+    # print(products_p)
+    context = {'products':product_list, 'cartItems':cartItems, 'filter': product_filter}
+    return render(request, 'store/products.html',context)
 
 
 def login_view(request):
-    form = LoginForm(request.POST or None)
     protocol = "http://"
     if request.is_secure():
-    	protocol = "https://"
+        protocol = "https://"
     if request.GET.get('next') is not None:
-    	redirect1 = protocol + request.META['HTTP_HOST'] + request.GET.get('next')
+        redirect1 = protocol + request.META['HTTP_HOST'] + request.GET.get('next')
 
-    if form.is_valid():
-        username = form.cleaned_data.get("username")
-        password = form.cleaned_data.get("password")
-        user = authenticate(username=username, password=password)
-        if user is not None:
-            login(request, user)
-            if request.GET.get('next') is None:
-            	return redirect('store')
-            return HttpResponseRedirect(redirect1)
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+
+        if form.is_valid():
+            username = form.cleaned_data.get("username")
+            password = form.cleaned_data.get("password")
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                if request.GET.get('next') is None:
+                    return redirect('store')
+                return HttpResponseRedirect(redirect1)
+            else:
+                form.add_error(None, 'Username or Password Incorrect')
+
+    else:
+        form = LoginForm()
     return render(request, "store/login.html", {"form": form})
 
 
@@ -225,6 +232,7 @@ def register_user(request):
             username = form.cleaned_data.get("username")
             raw_password = form.cleaned_data.get("password1")
             user = authenticate(username=username, password=raw_password)
+            messages.success(request, "Your request for signup has been sent. Mail will be sent to you when you are verified.")
             return redirect("/login/")
     else:
         form = SignUpForm()
@@ -234,146 +242,146 @@ def register_user(request):
 
 
 def about(request):
-	return render(request, 'store/about.html')
+    return render(request, 'store/about.html')
 
 @login_required
 def successfulOrder(request):
-	return render(request, "store/success.html")
+    return render(request, "store/success.html")
 
 
 @login_required
 def addImage(request):
-	data = cartData(request)
+    data = cartData(request)
 
-	cartItems = data['cartItems']
-	order = data['order']
-	items = data['items']
-	if request.user.is_superuser:
+    cartItems = data['cartItems']
+    order = data['order']
+    items = data['items']
+    if request.user.is_superuser:
 
-		product_list = Product.objects.filter( ordered__exact = False )
+        product_list = Product.objects.filter( ordered__exact = False )
 
 
-		context = {'products':product_list, 'cartItems':cartItems}
-		return render(request, 'store/add_image.html',context)
-	else:
-		messages.info(request, "NOT ALLOWED!")
-		return redirect('store')
+        context = {'products':product_list, 'cartItems':cartItems}
+        return render(request, 'store/add_image.html',context)
+    else:
+        messages.info(request, "NOT ALLOWED!")
+        return redirect('store')
 
 
 @login_required
 def addImageUpdate(request, pk):
-	data = cartData(request)
+    data = cartData(request)
 
-	cartItems = data['cartItems']
-	order = data['order']
-	items = data['items']
+    cartItems = data['cartItems']
+    order = data['order']
+    items = data['items']
 
-	if request.user.is_superuser:
-		product = Product.objects.filter( lot_no__exact = pk ).first()
+    if request.user.is_superuser:
+        product = Product.objects.filter( lot_no__exact = pk ).first()
 
-		if request.method == "POST":
-			print('post yes')
-			form = ProductUpdateForm(request.POST or None, request.FILES, instance = product)
-			if form.is_valid():
-				form.save()
-				return redirect('add_image')
-			else:
-				print("HERE")
+        if request.method == "POST":
+            print('post yes')
+            form = ProductUpdateForm(request.POST or None, request.FILES, instance = product)
+            if form.is_valid():
+                form.save()
+                return redirect('add_image')
+            else:
+                print("HERE")
 
-		else:
-			product = Product.objects.get( pk = pk )
-			form = ProductUpdateForm(instance = product)
+        else:
+            product = Product.objects.get( pk = pk )
+            form = ProductUpdateForm(instance = product)
 
-		context = {'form':form, 'cartItems':cartItems}
-		return render(request, 'store/add_image_detail.html',context)
+        context = {'form':form, 'cartItems':cartItems}
+        return render(request, 'store/add_image_detail.html',context)
 
-	else:
-		messages.info(request, "NOT ALLOWED!")
-		return redirect('store')
+    else:
+        messages.info(request, "NOT ALLOWED!")
+        return redirect('store')
 
 
 def jewellery(request):
-	all_items = Jewellery.objects.all()
-	context = {
-		"all_items": all_items
-	}
+    all_items = Jewellery.objects.all()
+    context = {
+        "all_items": all_items
+    }
 
-	return render(request, "store/jewellery.html", context)
+    return render(request, "store/jewellery.html", context)
 
 
 @csrf_exempt
 def ajax_enquiry(request):
-	data = request.POST.get("products", None)
+    data = request.POST.get("products", None)
 
-	print(data)
-	data = json.loads(data)
-	print(data)
-	products = Product.objects.filter(lot_no__in = data)
-	order = Order(customer = request.user.customer)
-	order.save()
+    print(data)
+    data = json.loads(data)
+    print(data)
+    products = Product.objects.filter(lot_no__in = data)
+    order = Order(customer = request.user.customer)
+    order.save()
 
-	for product in products:
-		orderitem = OrderItem(product = product, order = order)
-		orderitem.save()
+    for product in products:
+        orderitem = OrderItem(product = product, order = order)
+        orderitem.save()
 
-	if order.orderitem_set.count() > 0:
-		sendEnquiryMail(request, order)
+    if order.orderitem_set.count() > 0:
+        sendEnquiryMail(request, order)
 
-	order.delete()
-		
-	messages.success(request, "Please check your registered mail id for information.")
+    order.delete()
+
+    messages.success(request, "Please check your registered mail id for information.")
 
 
 
-	return JsonResponse(data, safe = False)
+    return JsonResponse(data, safe = False)
 
 
 @csrf_exempt
 def ajax_cart(request):
-	data = request.POST.get("products", None)
-	messages = []
+    data = request.POST.get("products", None)
+    messages = []
 
-	print(data)
-	data = json.loads(data)
-	print(data)
-	products = Product.objects.filter(lot_no__in = data)
+    print(data)
+    data = json.loads(data)
+    print(data)
+    products = Product.objects.filter(lot_no__in = data)
 
-	order, created = Order.objects.get_or_create(customer = request.user.customer, complete = False)
+    order, created = Order.objects.get_or_create(customer = request.user.customer, complete = False)
 
-	for product in products:
-		orderitem, orderitemcreated = OrderItem.objects.get_or_create(product = product, order = order)
+    for product in products:
+        orderitem, orderitemcreated = OrderItem.objects.get_or_create(product = product, order = order)
 
-		if not orderitemcreated:
-			messages.append(str(product) +' already in cart!')
+        if not orderitemcreated:
+            messages.append(str(product) +' already in cart!')
 
 
-		
-	messages.append("Successfully Added to cart!")
 
-	data = {
-		'messages': messages
-	}
+    messages.append("Successfully Added to cart!")
 
-	return JsonResponse(data, safe = False)
+    data = {
+        'messages': messages
+    }
+
+    return JsonResponse(data, safe = False)
 
 
 def activate_user(request, pk):
-	if request.user.is_superuser:
-		try:
-			user = User.objects.get(pk=pk)
-		except:
-			return HttpResponse('Invalid Request')
-		if request.method == 'POST':
-			user.is_active = True
-			user.save()
-			sendUserApprovalMail(request, user)
-			messages.success(request, "Activated successfully")
+    if request.user.is_superuser:
+        try:
+            user = User.objects.get(pk=pk)
+        except:
+            return HttpResponse('Invalid Request')
+        if request.method == 'POST':
+            user.is_active = True
+            user.save()
+            sendUserApprovalMail(request, user)
+            messages.success(request, "Activated successfully")
 
-		context = {
-			'user': user
-		}
+        context = {
+            'user': user
+        }
 
-		return render(request, 'store/activate_user.html', context)
+        return render(request, 'store/activate_user.html', context)
 
-	else:
-		raise Http404('Invalid Request')
+    else:
+        raise Http404('Invalid Request')

@@ -1,4 +1,5 @@
 {% extends 'store/main.html' %}
+{% load crispy_forms_tags %}
 <!-- ... -->
 {% block content %}
 <div class="row">
@@ -6,7 +7,7 @@
     <form method="POST" enctype="multipart/form-data">
       {% csrf_token %}
       <div class="form-group">
-        {{ form.as_p }}
+        {{ form | crispy }}
       </div>
       <button type="submit" class="btn btn-primary">Update</button>
     </form>

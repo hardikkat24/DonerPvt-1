@@ -113,7 +113,7 @@ def sendMail(request, order):
 
 	grandtotal += SHIPPING_CHARGES
 
-	message = render_to_string('store/customer_email.html',{
+	message = render_to_string('store/customer_order_email.html',{
 			'user': request.user,
 			'datetime': datetime.datetime.now(pytz.timezone('Asia/Kolkata')),
 			'order': order,

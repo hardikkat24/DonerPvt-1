@@ -1,4 +1,6 @@
 {% extends 'store/main.html' %}
+{% load crispy_forms_tags %}
+
 <!-- ... -->
 {% block content %}
 <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
@@ -7,9 +9,9 @@
         <div class="col-120">
     <form method="POST">
       {% csrf_token %}
-       {{ form1.as_p }}
-       {{ form.as_p }}
-       {{ form2.as_p }}
+       {{ form1 | crispy }}
+       {{ form | crispy }}
+       {{ form2 | crispy }}
 
       <button type="submit" class="btn btn-success">Register</button>
     </form>
